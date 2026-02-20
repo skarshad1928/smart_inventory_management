@@ -136,3 +136,42 @@ def add_review():
             "error": "Failed to submit review",
             "details": str(e)
         }), 500
+# -------------------------------------------------------
+# GET /api/reviews/<product_id>
+# -------------------------------------------------------
+@reviews_bp.route("/api/reviews/<product_id>", methods=["GET"])
+def get_reviews(product_id):
+    try:
+        reviews_collection = get_reviews_collection()
+
+        # Validate ObjectId
+        try:
+            product_obj_id = ObjectId(product_id)
+        except:
+            return jsonify({"error": "Invalid product_id"}), 400
+
+        # Fetch reviews for product
+        reviews_cursor = reviews_collection.find(
+            {"product_id": product_obj_id}
+        ).sort("created_at", -1)
+
+        reviews_list = []
+
+        for review in reviews_cursor:
+            reviews_list.append({
+                "review_id": str(review["_id"]),
+                "product_id": str(review["product_id"]),
+                "user_id": str(review["user_id"]),
+                "review_text": review["review_text"],
+                "rating": review["rating"],
+                "sentiment": review.get("sentiment", ""),
+                "created_at": review["created_at"].isoformat()
+            })
+
+        return jsonify(reviews_list), 200
+
+    except Exception as e:
+        return jsonify({
+            "error": "Failed to fetch reviews",
+            "details": str(e)
+        }), 500

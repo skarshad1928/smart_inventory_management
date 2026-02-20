@@ -4,32 +4,42 @@ from flask_cors import CORS
 from utils.db import database
 from routes.products import products_bp
 from routes.reviews import reviews_bp
-from routes.users import users_bp  # if using users
+from routes.users import users_bp
 
+
+# -------------------------------------------------
+# Create App
+# -------------------------------------------------
 app = Flask(__name__)
 CORS(app)
+
 
 # -------------------------------------------------
 # Connect Database ONCE at app startup
 # -------------------------------------------------
 database.connect()
 
+
 # -------------------------------------------------
 # Register Blueprints
 # -------------------------------------------------
 app.register_blueprint(products_bp)
 app.register_blueprint(reviews_bp)
-app.register_blueprint(users_bp)  # optional
+app.register_blueprint(users_bp)
+
 
 # -------------------------------------------------
 # Health Route
 # -------------------------------------------------
 @app.route("/")
 def home():
-    return "Flask Backend Running Successfully"
+    return {"message": "Smart Inventory API Running"}
+
 
 # -------------------------------------------------
-# Run Server
+# IMPORTANT:
+# DO NOT force port when deploying to Render
+# Render automatically assigns PORT
 # -------------------------------------------------
 if __name__ == "__main__":
-    app.run(port=5000, debug=True, use_reloader=False)
+    app.run(debug=True)
